@@ -1,0 +1,62 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+</head>
+<body>
+<div class="container">
+    <div>
+        <h1>Hello Spring</h1>
+        <p>Log-In</p>
+        <form id="login-form" method="post">
+            <div class="login-group">
+                <label for="email">E-Mail</label>
+                <input type="text" id="email" name="email" placeholder="E-Mail을 입력하세요.">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password">
+            </div>
+            <button value="Submit" type="submit">Submit</button>
+        </form>
+    </div>
+</div> <!-- /container -->
+<script type="text/javascript">
+    $('form').submit(function(event){
+        const formData = {};
+        $($('form').serializeArray()).each(function(i, v) {
+            formData[v.name] = v.value;
+        });
+        $.ajax({
+            type: 'POST',
+            url: '/login',
+            dataType: 'json',
+            data: JSON.stringify(formData),
+            contentType : 'application/json',
+            success: function(data) {
+                alert(data["name"] + "님 환영합니다.");
+                onLoginSucess(data);
+            },
+            error : function(xhr, ajaxSettings, thrownError)
+            {
+                alert("로그인에 실패했습니다. E-Mail 혹은 Password를 확인하세요.");
+            }
+        });
+        event.preventDefault();
+    });
+
+    function onLoginSucess(member){
+        const url = "/user/home?name=" + member["name"];
+        $.ajax({
+            type: 'GET',
+            url: url,
+            headers: {"Authorization": 'Bearer ' + member["token"]},
+            dataType: 'text',
+            data: member["name"],
+            contentType : 'application/json',
+            success: function(data) {
+
+            }
+        });
+    }
+</script>
+</body>
+</html>

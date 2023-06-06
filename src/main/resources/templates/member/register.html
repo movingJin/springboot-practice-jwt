@@ -1,0 +1,42 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+</head>
+<body>
+<div class="container">
+    <p>Sign-Up</p>
+    <form action="/member/new" method="post">
+        <div class="form-group">
+            <label for="name">E-Mail</label>
+            <input type="text" id="email" name="email" placeholder="E-Mail을 입력하세요.">
+            <label for="name">Name</label>
+            <input type="text" id="name" name="name" placeholder="이름을 입력하세요.">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password">
+        </div>
+        <button value="Submit" type="submit">Submit</button>
+    </form>
+</div> <!-- /container -->
+<script type="text/javascript">
+    $('form').submit(function(event){
+        const formData = {};
+        $($('form').serializeArray()).each(function(i, v) {
+            formData[v.name] = v.value;
+        });
+        $.ajax({
+            type: 'POST',
+            url: '/register',
+            dataType: 'json',
+            data: JSON.stringify(formData),
+            contentType : 'application/json',
+            success: function(data) {
+                alert("회원가입에 성공했습니다.");
+                window.location.href = "/login";
+            }
+        });
+        event.preventDefault();
+    });
+</script>
+</body>
+</html>
