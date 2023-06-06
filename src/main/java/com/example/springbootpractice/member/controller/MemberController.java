@@ -1,44 +1,57 @@
 package com.example.springbootpractice.member.controller;
 
-import com.example.springbootpractice.member.dto.MemberDto;
-import com.example.springbootpractice.member.entity.Member;
+import com.example.springbootpractice.member.dto.LoginRequestDto;
+import com.example.springbootpractice.member.dto.LoginResponseDto;
 import com.example.springbootpractice.member.service.MemberService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-
-import java.util.List;
+import org.springframework.web.bind.annotation.*;
 
 @Controller
+@RequiredArgsConstructor
 public class MemberController {
     private final MemberService memberService;
 
-    @Autowired
-    public MemberController(MemberService memberService) {
-        this.memberService = memberService;
+    @GetMapping("/login")
+    public String login() {
+        return "member/login";
     }
 
-    @GetMapping("/member/new")
-    public String createForm() {
-        return "member/createMemberForm";
+    @ResponseBody
+    @PostMapping(value = "/login")
+    public ResponseEntity<LoginResponseDto> signin(@RequestBody LoginRequestDto request) throws Exception {
+        return new ResponseEntity<>(memberService.login(request), HttpStatus.OK);
     }
 
-    @PostMapping("/member/new")
-    public  String create(MemberDto form) {
-        Member member = new Member();
-        member.setName(form.getName());
-        member.setEmail(form.getEmail());
-        memberService.join(member);
-
-        return "redirect:/";
+    @GetMapping("/register")
+    public String register() {
+        return "member/register";
     }
 
-    @GetMapping("/member/list")
-    public String list(Model model) {
-        List<Member> members = memberService.findMembers();
-        model.addAttribute("members", members);
-        return "member/memberList";
+    @ResponseBody
+    @PostMapping(value = "/register")
+    public ResponseEntity<Boolean> signup(@RequestBody LoginRequestDto request) throws Exception {
+        return new ResponseEntity<>(memberService.register(request), HttpStatus.OK);
+    }
+
+    @GetMapping("/user/home")
+    public String home(Model model, @RequestParam String name) {
+        model.addAttribute("name", name);
+        return "home";
+    }
+
+    @ResponseBody
+    @GetMapping("/user/get")
+    public ResponseEntity<LoginResponseDto> getUser(@RequestParam String account) throws Exception {
+        return new ResponseEntity<>( memberService.getMember(account), HttpStatus.OK);
+    }
+
+    @ResponseBody
+    @GetMapping("/admin/get")
+    public ResponseEntity<LoginResponseDto> getUserForAdmin(@RequestParam String account) throws Exception {
+        return new ResponseEntity<>( memberService.getMember(account), HttpStatus.OK);
     }
 }
