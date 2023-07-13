@@ -32,7 +32,7 @@ public class JwtProvider {
     private Key secretKey;
 
     // 만료시간 : 1Hour
-    private final long exp = 1000L * 60 * 60;
+    public final long exp = 1000L * 60 * 60;
 
     private final UserDetailServiceImpl userDetailsService;
 
@@ -61,8 +61,19 @@ public class JwtProvider {
         return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
     }
 
+    // Bearer 검증
+    private String getClaimFromToken(String token){
+        if (!token.substring(0, "BEARER ".length()).equalsIgnoreCase("BEARER ")) {
+            return null;
+        } else {
+            token = token.split(" ")[1].trim();
+        }
+        return token;
+    }
+
     // 토큰에 담겨있는 유저 account 획득
     public String getAccount(String token) {
+        token = getClaimFromToken(token);
         return Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token).getBody().getSubject();
     }
 
@@ -74,17 +85,22 @@ public class JwtProvider {
     // 토큰 검증
     public boolean validateToken(String token) {
         try {
-            // Bearer 검증
-            if (!token.substring(0, "BEARER ".length()).equalsIgnoreCase("BEARER ")) {
-                return false;
-            } else {
-                token = token.split(" ")[1].trim();
-            }
+            token = getClaimFromToken(token);
             Jws<Claims> claims = Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token);
             // 만료되었을 시 false
             return !claims.getBody().getExpiration().before(new Date());
         } catch (Exception e) {
             return false;
         }
+    }
+
+    public Long getExpiration(String accessToken){
+        accessToken = getClaimFromToken(accessToken);
+        Date expiration = Jwts.parserBuilder()
+                .setSigningKey(secretKey).build()
+                .parseClaimsJws(accessToken).getBody()
+                .getExpiration();
+        long now = new Date().getTime();
+        return (expiration.getTime() - now);
     }
 }

@@ -8,7 +8,8 @@ import java.util.List;
 
 public interface MemberService {
     public List<Member> findMembers();
-    public LoginResponseDto login(LoginRequestDto request);
+    public LoginResponseDto logIn(LoginRequestDto request);
+    void logOut(String token);
     public boolean register(LoginRequestDto request) throws Exception;
     public LoginResponseDto getMember(String account) throws Exception;
 }

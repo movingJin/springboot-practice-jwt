@@ -7,20 +7,26 @@ import com.example.springbootpractice.member.entity.Member;
 import com.example.springbootpractice.member.repository.MemberRepository;
 import com.example.springbootpractice.member.security.CustomUserDetails;
 import com.example.springbootpractice.member.security.JwtProvider;
+import io.jsonwebtoken.Jwts;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
 public class MemberServiceImpl implements MemberService{
+    private final RedisTemplate<String, Object> redisTemplate;
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
@@ -31,7 +37,8 @@ public class MemberServiceImpl implements MemberService{
     }
 
     @Override
-    public LoginResponseDto login(LoginRequestDto request) {
+    @Transactional
+    public LoginResponseDto logIn(LoginRequestDto request) {
         Member member = memberRepository.findByEmail(request.getEmail()).orElseThrow(() ->
                 new BadCredentialsException("잘못된 계정정보입니다."));
 
@@ -39,13 +46,37 @@ public class MemberServiceImpl implements MemberService{
             throw new BadCredentialsException("잘못된 계정정보입니다.");
         }
 
+        String token = jwtProvider.createToken(member.getEmail(), member.getRoles());
+        redisTemplate.opsForValue().set("RT:"+member.getEmail(), token, jwtProvider.exp, TimeUnit.MILLISECONDS);
         return LoginResponseDto.builder()
                 .id(member.getId())
                 .email(member.getEmail())
                 .name(member.getName())
                 .roles(member.getRoles())
-                .token(jwtProvider.createToken(member.getEmail(), member.getRoles()))
+                .token(token)
                 .build();
+    }
+
+    @Override
+    @Transactional
+    public void logOut(String token) {
+        // 로그아웃 하고 싶은 토큰이 유효한 지 먼저 검증하기
+        if (!jwtProvider.validateToken(token)){
+            throw new IllegalArgumentException("로그아웃 : 유효하지 않은 토큰입니다.");
+        }
+
+        // Access Token에서 User email을 가져온다
+        Authentication authentication = jwtProvider.getAuthentication(token);
+
+        // Redis에서 해당 User email로 저장된 Refresh Token 이 있는지 여부를 확인 후에 있을 경우 삭제를 한다.
+        if (redisTemplate.opsForValue().get("RT:"+authentication.getName())!=null){
+            // Refresh Token을 삭제
+            redisTemplate.delete("RT:"+authentication.getName());
+        }
+
+        // 해당 Access Token 유효시간을 가지고 와서 BlackList에 저장하기
+        Long expiration = jwtProvider.getExpiration(token);
+        redisTemplate.opsForValue().set(token,"logout",expiration,TimeUnit.MILLISECONDS);
     }
 
     @Override

@@ -23,7 +23,14 @@ public class MemberController {
     @ResponseBody
     @PostMapping(value = "/login")
     public ResponseEntity<LoginResponseDto> signin(@RequestBody LoginRequestDto request) throws Exception {
-        return new ResponseEntity<>(memberService.login(request), HttpStatus.OK);
+        return new ResponseEntity<>(memberService.logIn(request), HttpStatus.OK);
+    }
+
+    @ResponseBody
+    @PostMapping(value = "/signout")
+    public ResponseEntity<String> signout(@RequestHeader (name="Authorization") String token) throws Exception {
+        memberService.logOut(token);
+        return new ResponseEntity<>("success", HttpStatus.OK);
     }
 
     @GetMapping("/register")

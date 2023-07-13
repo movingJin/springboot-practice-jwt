@@ -17,6 +17,7 @@
             </div>
             <button value="Submit" type="submit">Submit</button>
         </form>
+        <input type="button" id="logout" onclick="logout_event();" value="LogOut" disabled />
     </div>
 </div> <!-- /container -->
 <script type="text/javascript">
@@ -32,8 +33,10 @@
             data: JSON.stringify(formData),
             contentType : 'application/json',
             success: function(data) {
+                localStorage.setItem('wtw-token', data["token"]);
                 alert(data["name"] + "님 환영합니다.");
-                onLoginSucess(data);
+                document.getElementById('logout').disabled = false;
+                //onLoginSucess(data);
             },
             error : function(xhr, ajaxSettings, thrownError)
             {
@@ -54,6 +57,23 @@
             contentType : 'application/json',
             success: function(data) {
 
+            }
+        });
+    }
+
+    function logout_event(){
+        const url = "/signout";
+        const token = localStorage.getItem('wtw-token') || '';
+        $.ajax({
+            type: 'POST',
+            url: url,
+            headers: {"Authorization": 'Bearer ' + token},
+            contentType : 'application/json',
+            success: function(data) {
+                if(data === "success") {
+                    alert("로그아웃 되었습니다.");
+                    document.getElementById('logout').disabled = true;
+                }
             }
         });
     }
