@@ -10,6 +10,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
+
 @Controller
 @RequiredArgsConstructor
 public class MemberController {
@@ -22,8 +24,10 @@ public class MemberController {
 
     @ResponseBody
     @PostMapping(value = "/login")
-    public ResponseEntity<LoginResponseDto> signin(@RequestBody LoginRequestDto request) throws Exception {
-        return new ResponseEntity<>(memberService.logIn(request), HttpStatus.OK);
+    public ResponseEntity<LoginResponseDto> signin(
+            @RequestBody LoginRequestDto request,
+            HttpServletResponse response) throws Exception {
+        return new ResponseEntity<>(memberService.logIn(request, response), HttpStatus.OK);
     }
 
     @ResponseBody

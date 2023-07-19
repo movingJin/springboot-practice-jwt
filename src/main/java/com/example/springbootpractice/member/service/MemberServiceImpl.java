@@ -2,6 +2,7 @@ package com.example.springbootpractice.member.service;
 
 import com.example.springbootpractice.member.dto.LoginRequestDto;
 import com.example.springbootpractice.member.dto.LoginResponseDto;
+import com.example.springbootpractice.member.dto.TokenDto;
 import com.example.springbootpractice.member.entity.Authority;
 import com.example.springbootpractice.member.entity.Member;
 import com.example.springbootpractice.member.repository.MemberRepository;
@@ -18,6 +19,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.transaction.Transactional;
 import java.util.Collections;
 import java.util.List;
@@ -38,7 +40,7 @@ public class MemberServiceImpl implements MemberService{
 
     @Override
     @Transactional
-    public LoginResponseDto logIn(LoginRequestDto request) {
+    public LoginResponseDto logIn(LoginRequestDto request, HttpServletResponse response) {
         Member member = memberRepository.findByEmail(request.getEmail()).orElseThrow(() ->
                 new BadCredentialsException("잘못된 계정정보입니다."));
 
@@ -46,14 +48,21 @@ public class MemberServiceImpl implements MemberService{
             throw new BadCredentialsException("잘못된 계정정보입니다.");
         }
 
-        String token = jwtProvider.createToken(member.getEmail(), member.getRoles());
-        redisTemplate.opsForValue().set("RT:"+member.getEmail(), token, jwtProvider.exp, TimeUnit.MILLISECONDS);
+        // 아이디 정보로 Token생성
+        TokenDto tokenDto = jwtProvider.createAllToken(member.getEmail(), member.getRoles());
+
+        redisTemplate.opsForValue().set(
+                "RT:"+member.getEmail(),
+                tokenDto.getRefreshToken(),
+                JwtProvider.REFRESH_TIME,
+                TimeUnit.MILLISECONDS);
+
         return LoginResponseDto.builder()
                 .id(member.getId())
                 .email(member.getEmail())
                 .name(member.getName())
                 .roles(member.getRoles())
-                .token(token)
+                .tokens(tokenDto)
                 .build();
     }
 
@@ -102,5 +111,10 @@ public class MemberServiceImpl implements MemberService{
         Member member = memberRepository.findByEmail(account)
                 .orElseThrow(() -> new Exception("계정을 찾을 수 없습니다."));
         return new LoginResponseDto(member);
+    }
+
+    private void setHeader(HttpServletResponse response, TokenDto tokenDto) {
+        response.addHeader(JwtProvider.ACCESS_TOKEN, tokenDto.getAccessToken());
+        response.addHeader(JwtProvider.REFRESH_TOKEN, tokenDto.getRefreshToken());
     }
 }

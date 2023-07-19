@@ -20,7 +20,7 @@ public class LoginResponseDto {
     private String name;
     private String email;
     private List<Authority> roles = new ArrayList<>();
-    private String token;
+    private TokenDto tokens;
 
     public LoginResponseDto(Member member) {
         this.id = member.getId();

@@ -33,7 +33,7 @@
             data: JSON.stringify(formData),
             contentType : 'application/json',
             success: function(data) {
-                localStorage.setItem('wtw-token', data["token"]);
+                localStorage.setItem('wtw-token', data["tokens"].accessToken);
                 alert(data["name"] + "님 환영합니다.");
                 document.getElementById('logout').disabled = false;
                 //onLoginSucess(data);
@@ -63,11 +63,11 @@
 
     function logout_event(){
         const url = "/signout";
-        const token = localStorage.getItem('wtw-token') || '';
+        const accessToken = localStorage.getItem('wtw-token') || '';
         $.ajax({
             type: 'POST',
             url: url,
-            headers: {"Authorization": 'Bearer ' + token},
+            headers: {"Authorization": 'Bearer ' + accessToken},
             contentType : 'application/json',
             success: function(data) {
                 if(data === "success") {
