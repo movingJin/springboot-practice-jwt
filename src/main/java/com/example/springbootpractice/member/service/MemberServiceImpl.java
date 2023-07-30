@@ -89,6 +89,7 @@ public class MemberServiceImpl implements MemberService{
     }
 
     @Override
+    @Transactional
     public boolean register(LoginRequestDto request) throws Exception {
         try {
             Member member = Member.builder()
