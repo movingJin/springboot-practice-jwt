@@ -13,4 +13,7 @@ public interface MemberService {
     void logOut(String token);
     public boolean register(LoginRequestDto request) throws Exception;
     public LoginResponseDto getMember(String account) throws Exception;
+
+    void sendCodeToEmail(String email) throws Exception;
+    boolean verifiedCode(String email, String authCode);
 }

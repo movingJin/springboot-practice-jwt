@@ -2,6 +2,7 @@ package com.example.springbootpractice.member.controller;
 
 import com.example.springbootpractice.member.dto.LoginRequestDto;
 import com.example.springbootpractice.member.dto.LoginResponseDto;
+import com.example.springbootpractice.member.entity.Member;
 import com.example.springbootpractice.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -11,6 +12,13 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
+import javax.validation.constraints.Email;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Random;
 
 @Controller
 @RequiredArgsConstructor
@@ -40,6 +48,20 @@ public class MemberController {
     @GetMapping("/register")
     public String register() {
         return "member/register";
+    }
+
+    @PostMapping("/emails/verification-requests")
+    public ResponseEntity<Void> sendMessage(@RequestBody Map<String, String> param) throws Exception {
+        memberService.sendCodeToEmail(param.get("email"));
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PostMapping("/emails/verifications")
+    public ResponseEntity<Boolean> verificationEmail(@RequestBody Map<String, String> param) {
+        boolean response = memberService.verifiedCode(param.get("email"), param.get("code"));
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @ResponseBody

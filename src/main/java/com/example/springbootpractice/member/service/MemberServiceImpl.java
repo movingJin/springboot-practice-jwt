@@ -1,5 +1,7 @@
 package com.example.springbootpractice.member.service;
 
+import com.example.springbootpractice.common.BusinessLogicException;
+import com.example.springbootpractice.common.ExceptionCode;
 import com.example.springbootpractice.member.dto.LoginRequestDto;
 import com.example.springbootpractice.member.dto.LoginResponseDto;
 import com.example.springbootpractice.member.dto.TokenDto;
@@ -10,6 +12,8 @@ import com.example.springbootpractice.member.security.CustomUserDetails;
 import com.example.springbootpractice.member.security.JwtProvider;
 import io.jsonwebtoken.Jwts;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
@@ -21,10 +25,16 @@ import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.transaction.Transactional;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
+import java.util.Optional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class MemberServiceImpl implements MemberService{
@@ -32,6 +42,11 @@ public class MemberServiceImpl implements MemberService{
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
+    private static final String AUTH_CODE_PREFIX = "AuthCode ";
+    private final MailService mailService;
+
+    @Value("${spring.mail.auth-code-expiration-millis}")
+    private long authCodeExpirationMillis;
 
     @Override
     public List<Member> findMembers() {
@@ -98,6 +113,7 @@ public class MemberServiceImpl implements MemberService{
                     .name(request.getName())
                     .build();
             member.setRoles(Collections.singletonList(Authority.builder().name("ROLE_USER").build()));
+            this.checkDuplicatedEmail(member.getEmail());
 
             memberRepository.save(member);
         } catch (Exception e) {
@@ -117,5 +133,45 @@ public class MemberServiceImpl implements MemberService{
     private void setHeader(HttpServletResponse response, TokenDto tokenDto) {
         response.addHeader(JwtProvider.ACCESS_TOKEN, tokenDto.getAccessToken());
         response.addHeader(JwtProvider.REFRESH_TOKEN, tokenDto.getRefreshToken());
+    }
+
+    @Override
+    public void sendCodeToEmail(String toEmail) throws Exception {
+        String title = "모두의전세 이메일 인증 번호";
+        String authCode = this.createCode();
+        mailService.sendEmail(toEmail, title, authCode);
+        // 이메일 인증 요청 시 인증 번호 Redis에 저장 ( key = "AuthCode " + Email / value = AuthCode )
+        redisTemplate.opsForValue().set(AUTH_CODE_PREFIX + toEmail,
+                authCode, Duration.ofMillis(this.authCodeExpirationMillis));
+    }
+
+    private void checkDuplicatedEmail(String email) {
+        Optional<Member> member = memberRepository.findByEmail(email);
+        if (member.isPresent()) {
+            log.debug("MemberServiceImpl.checkDuplicatedEmail exception occur email: {}", email);
+            throw new BusinessLogicException(ExceptionCode.MEMBER_EXISTS);
+        }
+    }
+
+    private String createCode() {
+        int lenth = 6;
+        try {
+            Random random = SecureRandom.getInstanceStrong();
+            StringBuilder builder = new StringBuilder();
+            for (int i = 0; i < lenth; i++) {
+                builder.append(random.nextInt(10));
+            }
+            return builder.toString();
+        } catch (NoSuchAlgorithmException e) {
+            log.debug("MemberService.createCode() exception occur");
+            throw new BusinessLogicException(ExceptionCode.NO_SUCH_ALGORITHM);
+        }
+    }
+
+    public boolean verifiedCode(String email, String authCode) {
+        this.checkDuplicatedEmail(email);
+        String redisAuthCode = (String)redisTemplate.opsForValue().get(AUTH_CODE_PREFIX + email);
+
+        return redisAuthCode != null && redisAuthCode.equals(authCode);
     }
 }
