@@ -2,6 +2,7 @@ package com.example.springbootpractice.member.controller;
 
 import com.example.springbootpractice.member.dto.LoginRequestDto;
 import com.example.springbootpractice.member.dto.LoginResponseDto;
+import com.example.springbootpractice.member.dto.SignUpRequestDto;
 import com.example.springbootpractice.member.entity.Member;
 import com.example.springbootpractice.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
@@ -66,7 +67,7 @@ public class MemberController {
 
     @ResponseBody
     @PostMapping(value = "/register")
-    public ResponseEntity<Boolean> signup(@RequestBody LoginRequestDto request) throws Exception {
+    public ResponseEntity<Boolean> signup(@RequestBody SignUpRequestDto request) throws Exception {
         return new ResponseEntity<>(memberService.register(request), HttpStatus.OK);
     }
 

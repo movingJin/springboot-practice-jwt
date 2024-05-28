@@ -4,6 +4,7 @@ import com.example.springbootpractice.common.BusinessLogicException;
 import com.example.springbootpractice.common.ExceptionCode;
 import com.example.springbootpractice.member.dto.LoginRequestDto;
 import com.example.springbootpractice.member.dto.LoginResponseDto;
+import com.example.springbootpractice.member.dto.SignUpRequestDto;
 import com.example.springbootpractice.member.dto.TokenDto;
 import com.example.springbootpractice.member.entity.Authority;
 import com.example.springbootpractice.member.entity.Member;
@@ -105,21 +106,18 @@ public class MemberServiceImpl implements MemberService{
 
     @Override
     @Transactional
-    public boolean register(LoginRequestDto request) throws Exception {
-        try {
-            Member member = Member.builder()
-                    .email(request.getEmail())
-                    .password(passwordEncoder.encode(request.getPassword()))
-                    .name(request.getName())
-                    .build();
-            member.setRoles(Collections.singletonList(Authority.builder().name("ROLE_USER").build()));
-            this.checkDuplicatedEmail(member.getEmail());
-
-            memberRepository.save(member);
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            throw new Exception("잘못된 요청입니다.");
+    public boolean register(SignUpRequestDto request) {
+        Member member = Member.builder()
+                .email(request.getEmail())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .name(request.getName())
+                .build();
+        member.setRoles(Collections.singletonList(Authority.builder().name("ROLE_USER").build()));
+        this.checkDuplicatedEmail(member.getEmail());
+        if(!verifiedCode(member.getEmail(), request.getCode())){
+            throw new BusinessLogicException(ExceptionCode.AUTH_CODE_NOT_VALID);
         }
+        memberRepository.save(member);
         return true;
     }
 

@@ -16,7 +16,6 @@
             <tr>
                 <td><label for="code">Auth code</label></td>
                 <td><input type="text" id="code" name="code" placeholder="코드를 입력하세요."></td>
-                <td><button value="verify code" type="button" onclick="verify_auth_code();">verify code</button></td>
             </tr>
             <tr>
                 <td><label for="name">Name</label></td>
@@ -31,61 +30,91 @@
     </form>
 </div> <!-- /container -->
 <script type="text/javascript">
-$('form').submit(function(event){
-    const formData = {};
-    $($('form').serializeArray()).each(function(i, v) {
-        formData[v.name] = v.value;
-    });
-    $.ajax({
-        type: 'POST',
-        url: '/register',
-        dataType: 'json',
-        data: JSON.stringify(formData),
-        contentType : 'application/json',
-        success: function(data) {
-            alert("회원가입에 성공했습니다.");
-            window.location.href = "/login";
-        }
-    });
-    event.preventDefault();
-});
+    {
+      const btn_submit = document.getElementById("register_submit");
+      const input_name = document.getElementById("name");
+      const input_email = document.getElementById("email");
+      const input_code = document.getElementById("code");
+      const input_passwd = document.getElementById("password");
+      deactivate()
 
-function send_auth_code(){
-    const url = "/emails/verification-requests";
-    $.ajax({
-        type: 'POST',
-        url: url,
-        dataType: 'json',
-        data: JSON.stringify({email: $('#email').val()}),
-        contentType : 'application/json',
-        success: function(data) {
+      function activate() {
+        btn_submit.disabled = false;
+      }
 
-        }
-    });
-    const email = $('#email').val();
-    alert("인증코드를 " + email + "로 전송했습니다. 30분 내로 메일이 도착합니다.");
-    event.preventDefault();
-}
+      function deactivate() {
+        btn_submit.disabled = true;
+      }
 
-function verify_auth_code(){
-    const param = {
-        email: $('#email').val(),
-        code: $('#code').val()
-    };
-    const url = "/emails/verifications";
-    $.ajax({
-        type: 'POST',
-        url: url,
-        dataType: 'json',
-        data: JSON.stringify(param),
-        contentType : 'application/json',
-        success: function(data) {
-            alert("인증되었습니다!");
-            $("#register_submit").attr("disabled", false);
+      function check() {
+        if (input_name.value != '' && input_code.value != '' && input_passwd.value != '' && input_email.value != '' && input_email.checkValidity()) {
+          activate()
+        } else {
+          deactivate()
         }
+      }
+
+      input_email.addEventListener('input', check);
+      input_name.addEventListener('input', check);
+      input_passwd.addEventListener('input', check);
+      input_code.addEventListener('input', check);
+    }
+
+    $('form').submit(function(event){
+        const formData = {};
+        $($('form').serializeArray()).each(function(i, v) {
+            formData[v.name] = v.value;
+        });
+        $.ajax({
+            type: 'POST',
+            url: '/register',
+            dataType: 'json',
+            data: JSON.stringify(formData),
+            contentType : 'application/json',
+            success: function(data) {
+                alert("회원가입에 성공했습니다.");
+                window.location.href = "/login";
+            }
+        });
+        event.preventDefault();
     });
-    event.preventDefault();
-}
+
+    function send_auth_code(){
+        const url = "/emails/verification-requests";
+        $.ajax({
+            type: 'POST',
+            url: url,
+            dataType: 'json',
+            data: JSON.stringify({email: $('#email').val()}),
+            contentType : 'application/json',
+            success: function(data) {
+
+            }
+        });
+        const email = $('#email').val();
+        alert("인증코드를 " + email + "로 전송했습니다. 30분 내로 메일이 도착합니다.");
+        event.preventDefault();
+    }
+
+    function verify_auth_code(){
+        const param = {
+            email: $('#email').val(),
+            code: $('#code').val()
+        };
+        const url = "/emails/verifications";
+        $.ajax({
+            type: 'POST',
+            url: url,
+            dataType: 'json',
+            data: JSON.stringify(param),
+            contentType : 'application/json',
+            success: function(data) {
+                alert("인증되었습니다!");
+                $("#register_submit").attr("disabled", false);
+            }
+        });
+        event.preventDefault();
+    }
 </script>
 </body>
 </html>
