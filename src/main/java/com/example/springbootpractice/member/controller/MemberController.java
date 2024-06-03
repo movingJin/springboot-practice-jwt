@@ -51,7 +51,7 @@ public class MemberController {
         return "member/register";
     }
 
-    @PostMapping("/emails/verification-requests")
+    @PostMapping("/emails/send-authcode")
     public ResponseEntity<Void> sendMessage(@RequestBody Map<String, String> param) throws Exception {
         memberService.sendCodeToEmail(param.get("email"));
 
