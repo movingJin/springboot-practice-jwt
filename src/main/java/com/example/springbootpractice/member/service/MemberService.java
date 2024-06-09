@@ -9,11 +9,12 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 public interface MemberService {
-    public List<Member> findMembers();
-    public LoginResponseDto logIn(LoginRequestDto request, HttpServletResponse response);
+    List<Member> findMembers();
+    LoginResponseDto logIn(LoginRequestDto request, HttpServletResponse response);
     void logOut(String token);
-    public boolean register(SignUpRequestDto request) throws Exception;
-    public LoginResponseDto getMember(String account) throws Exception;
+    boolean register(SignUpRequestDto request) throws Exception;
+    String forwardTempPassword(String email) throws Exception;
+    LoginResponseDto getMember(String account) throws Exception;
 
     void sendCodeToEmail(String email) throws Exception;
     boolean verifiedCode(String email, String authCode);

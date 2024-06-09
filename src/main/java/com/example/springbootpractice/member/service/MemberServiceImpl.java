@@ -58,10 +58,10 @@ public class MemberServiceImpl implements MemberService{
     @Transactional
     public LoginResponseDto logIn(LoginRequestDto request, HttpServletResponse response) {
         Member member = memberRepository.findByEmail(request.getEmail()).orElseThrow(() ->
-                new BadCredentialsException("잘못된 계정정보입니다."));
+                new BadCredentialsException("Invalid E-mail Information."));
 
         if (!passwordEncoder.matches(request.getPassword(), member.getPassword())) {
-            throw new BadCredentialsException("잘못된 계정정보입니다.");
+            throw new BadCredentialsException("Password not matched.");
         }
 
         // 아이디 정보로 Token생성
@@ -119,6 +119,31 @@ public class MemberServiceImpl implements MemberService{
         }
         memberRepository.save(member);
         return true;
+    }
+
+    @Override
+    public String forwardTempPassword(String email) throws Exception {
+        Member member = memberRepository.findByEmail(email).orElseThrow(() ->
+                new BadCredentialsException("Invalid E-mail Information."));
+
+        // generate temporary password
+        char[] charSet = new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F',
+                'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z' };
+
+        StringBuilder tempPw = new StringBuilder();
+
+        for (int i = 0; i < 10; i++) {
+            int idx = (int) (charSet.length * Math.random());
+            tempPw.append(charSet[idx]);
+        }
+        String text = String.format("초기화된 임시비밀번호:\n%s\n\n임시비밀번호로 비밀번호가 초기화되었습니다. MyPage에서 비밀번호를 설정해주세요.", tempPw);
+        mailService.sendEmail(email, "모두의전세 임시비밀번호 발송", text);
+
+        // set a member's password as a temporary password
+        member.setPassword(passwordEncoder.encode(tempPw));
+        memberRepository.save(member);
+
+        return "Temporary password issued.";
     }
 
     @Override

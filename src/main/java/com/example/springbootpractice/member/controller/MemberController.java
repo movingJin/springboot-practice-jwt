@@ -6,6 +6,7 @@ import com.example.springbootpractice.member.dto.SignUpRequestDto;
 import com.example.springbootpractice.member.entity.Member;
 import com.example.springbootpractice.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -21,6 +22,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 
+@Slf4j
 @Controller
 @RequiredArgsConstructor
 public class MemberController {
@@ -69,6 +71,19 @@ public class MemberController {
     @PostMapping(value = "/register")
     public ResponseEntity<Boolean> signup(@RequestBody SignUpRequestDto request) throws Exception {
         return new ResponseEntity<>(memberService.register(request), HttpStatus.OK);
+    }
+
+    @GetMapping("/find-pwd")
+    public String findPassword() {
+        return "member/find_pwd";
+    }
+
+    @ResponseBody
+    @PostMapping("/find-pwd")
+    private ResponseEntity<String> findPassword(@RequestBody Map<String, String> request) throws Exception {
+        String status = memberService.forwardTempPassword(request.get("email"));
+
+        return new ResponseEntity<>(status, HttpStatus.OK);
     }
 
     @GetMapping("/user/home")

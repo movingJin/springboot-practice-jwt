@@ -1,0 +1,45 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+</head>
+<body>
+<div class="container">
+    <div>
+        <h1>Hello Spring</h1>
+        <p>Find Password</p>
+        <form id="find-pwd-form" method="post">
+            <div class="group">
+                <label for="email">E-Mail</label>
+                <input type="text" id="email" name="email" placeholder="E-Mail을 입력하세요.">
+            </div>
+            <button value="Submit" type="submit">Send Email</button>
+        </form>
+    </div>
+</div> <!-- /container -->
+<script type="text/javascript">
+    $('form').submit(function(event){
+        const formData = {};
+        $($('form').serializeArray()).each(function(i, v) {
+            formData[v.name] = v.value;
+        });
+        $.ajax({
+            type: 'POST',
+            url: '/find-pwd',
+            dataType: 'json',
+            data: JSON.stringify(formData),
+            contentType : 'application/json',
+            success: function(data) {
+
+            },
+            error: function(textStatus, errorThrown) {
+                console.log(textStatus);
+            }
+        });
+        const email = $('#email').val();
+        alert("초기화된 임시비밀번호를 " + email + "로 전송했습니다. 30분 내로 메일이 도착합니다.");
+        event.preventDefault();
+    });
+</script>
+</body>
+</html>
