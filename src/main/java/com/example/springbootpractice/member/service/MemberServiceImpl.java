@@ -9,18 +9,13 @@ import com.example.springbootpractice.member.dto.TokenDto;
 import com.example.springbootpractice.member.entity.Authority;
 import com.example.springbootpractice.member.entity.Member;
 import com.example.springbootpractice.member.repository.MemberRepository;
-import com.example.springbootpractice.member.security.CustomUserDetails;
 import com.example.springbootpractice.member.security.JwtProvider;
-import io.jsonwebtoken.Jwts;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -77,6 +72,7 @@ public class MemberServiceImpl implements MemberService{
                 .id(member.getId())
                 .email(member.getEmail())
                 .name(member.getName())
+                .phone(member.getPhone())
                 .roles(member.getRoles())
                 .tokens(tokenDto)
                 .build();
@@ -111,6 +107,7 @@ public class MemberServiceImpl implements MemberService{
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .name(request.getName())
+                .phone(request.getPhone())
                 .build();
         member.setRoles(Collections.singletonList(Authority.builder().name("ROLE_USER").build()));
         this.checkDuplicatedEmail(member.getEmail());

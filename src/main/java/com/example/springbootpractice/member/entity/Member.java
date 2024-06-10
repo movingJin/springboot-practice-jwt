@@ -5,7 +5,6 @@ import lombok.*;
 import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,6 +33,9 @@ public class Member {
 
     @Column(nullable = false, length = 50)
     private String name;
+
+    @Column(nullable = false, length = 20)
+    private String phone;
 
     @OneToMany(mappedBy = "member", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @Builder.Default

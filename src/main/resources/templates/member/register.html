@@ -10,20 +10,24 @@
         <table style="border-collapse: collapse; width: 100%; border:none;">
             <tr>
                 <td><label for="email">E-Mail</label></td>
-                <td><input type="text" id="email" name="email" placeholder="E-Mail을 입력하세요."></td>
+                <td><input type="text" id="email" name="email" placeholder="E-Mail을 입력하세요." required></td>
                 <td><button value="send code" type="button" onclick="send_auth_code();">send code</button></td>
             </tr>
             <tr>
                 <td><label for="code">Auth code</label></td>
-                <td><input type="text" id="code" name="code" placeholder="코드를 입력하세요."></td>
+                <td><input type="text" id="code" name="code" placeholder="코드를 입력하세요." required></td>
             </tr>
             <tr>
                 <td><label for="name">Name</label></td>
-                <td  colspan="2"><input type="text" id="name" name="name" placeholder="이름을 입력하세요."></td>
+                <td  colspan="2"><input type="text" id="name" name="name" placeholder="이름을 입력하세요." required></td>
+            </tr>
+            <tr>
+                <td><label for="phone">Phone Number</label></td>
+                <td  colspan="2"><input type="tel" id="phone" name="phone" placeholder="전화번호를 입력하세요.(숫자만)" pattern="[0-9]{3}[0-9]{4}[0-9]{4}" required></td>
             </tr>
             <tr>
                 <td><label for="password">Password</label></td>
-                <td colspan="2"><input type="password" id="password" name="password"></td>
+                <td colspan="2"><input type="password" id="password" name="password" required></td>
             </tr>
         </table>
         <button id="register_submit" value="Submit" type="submit" disabled>Submit</button>
@@ -32,9 +36,10 @@
 <script type="text/javascript">
     {
       const btn_submit = document.getElementById("register_submit");
-      const input_name = document.getElementById("name");
       const input_email = document.getElementById("email");
       const input_code = document.getElementById("code");
+      const input_name = document.getElementById("name");
+      const input_phone = document.getElementById("phone");
       const input_passwd = document.getElementById("password");
       deactivate()
 
@@ -47,7 +52,12 @@
       }
 
       function check() {
-        if (input_name.value != '' && input_code.value != '' && input_passwd.value != '' && input_email.value != '' && input_email.checkValidity()) {
+        if (input_email.value !== '' &&
+            input_name.value !== '' &&
+            input_phone.value !== '' &&
+            input_code.value !== '' &&
+            input_passwd.value !== '' &&
+            input_email.checkValidity()) {
           activate()
         } else {
           deactivate()
@@ -56,6 +66,7 @@
 
       input_email.addEventListener('input', check);
       input_name.addEventListener('input', check);
+      input_phone.addEventListener('input', check);
       input_passwd.addEventListener('input', check);
       input_code.addEventListener('input', check);
     }
@@ -93,26 +104,6 @@
         });
         const email = $('#email').val();
         alert("인증코드를 " + email + "로 전송했습니다. 30분 내로 메일이 도착합니다.");
-        event.preventDefault();
-    }
-
-    function verify_auth_code(){
-        const param = {
-            email: $('#email').val(),
-            code: $('#code').val()
-        };
-        const url = "/emails/verifications";
-        $.ajax({
-            type: 'POST',
-            url: url,
-            dataType: 'json',
-            data: JSON.stringify(param),
-            contentType : 'application/json',
-            success: function(data) {
-                alert("인증되었습니다!");
-                $("#register_submit").attr("disabled", false);
-            }
-        });
         event.preventDefault();
     }
 </script>

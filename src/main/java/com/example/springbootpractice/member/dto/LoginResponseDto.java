@@ -19,6 +19,7 @@ public class LoginResponseDto {
     private Long id;
     private String name;
     private String email;
+    private String phone;
     private List<Authority> roles = new ArrayList<>();
     private TokenDto tokens;
 
@@ -26,6 +27,7 @@ public class LoginResponseDto {
         this.id = member.getId();
         this.email = member.getEmail();
         this.name = member.getName();
+        this.phone = member.getPhone();
         this.roles = member.getRoles();
     }
 }
