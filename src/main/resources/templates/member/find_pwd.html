@@ -9,15 +9,57 @@
         <h1>Hello Spring</h1>
         <p>Find Password</p>
         <form id="find-pwd-form" method="post">
-            <div class="group">
-                <label for="email">E-Mail</label>
-                <input type="text" id="email" name="email" placeholder="E-Mail을 입력하세요.">
-            </div>
-            <button value="Submit" type="submit">Send Email</button>
+            <table style="border-collapse: collapse; border:none;">
+                <tr>
+                    <td><label for="email" >E-Mail</label></td>
+                    <td colspan="2"><input type="email" id="email" name="email" placeholder="E-Mail을 입력하세요." required></td>
+                </tr>
+                <tr>
+                    <td><label for="phone">Phone Number</label></td>
+                    <td><input type="tel" id="phone" name="phone" placeholder="전화번호를 입력하세요.(숫자만)" pattern="[0-9]{3}[0-9]{4}[0-9]{4}" required></td>
+                    <td><button value="send code" type="button" onclick="send_auth_code();" disabled>send code</button></td>
+                </tr>
+                <tr>
+                    <td><label for="code">Auth code</label></td>
+                    <td colspan="2"><input type="text" id="code" name="code" placeholder="코드를 입력하세요." disabled></td>
+                </tr>
+            </table>
+            <button id="register_submit" value="Submit" type="submit">Send Email</button>
         </form>
     </div>
 </div> <!-- /container -->
 <script type="text/javascript">
+    {
+      const btn_submit = document.getElementById("register_submit");
+      const input_email = document.getElementById("email");
+      const input_phone = document.getElementById("phone");
+      const input_code = document.getElementById("code");
+      deactivate()
+
+      function activate() {
+        btn_submit.disabled = false;
+      }
+
+      function deactivate() {
+        btn_submit.disabled = true;
+      }
+
+      function check() {
+        if (input_email.value !== '' &&
+            input_phone.value !== '' &&
+            //input_code.value !== '' &&
+            input_email.checkValidity()) {
+          activate()
+        } else {
+          deactivate()
+        }
+      }
+
+      input_email.addEventListener('input', check);
+      input_phone.addEventListener('input', check);
+      //input_code.addEventListener('input', check);
+    }
+
     $('form').submit(function(event){
         const formData = {};
         $($('form').serializeArray()).each(function(i, v) {
@@ -30,14 +72,19 @@
             data: JSON.stringify(formData),
             contentType : 'application/json',
             success: function(data) {
-
+                const email = $('#email').val();
+                alert("초기화된 임시비밀번호를 " + email + "로 전송했습니다. 30분 내로 메일이 도착합니다.");
             },
             error: function(textStatus, errorThrown) {
-                console.log(textStatus);
+                console.log(textStatus.responseText);
+                if(textStatus.responseText === "Unauthenticated user."){
+                    alert("등록되지 않은 이용자정보입니다.");
+                }else if(textStatus.responseText === "Temporary password issued."){
+                    const email = $('#email').val();
+                    alert("초기화된 임시비밀번호를 " + email + "로 전송했습니다. 30분 내로 메일이 도착합니다.");
+                }
             }
         });
-        const email = $('#email').val();
-        alert("초기화된 임시비밀번호를 " + email + "로 전송했습니다. 30분 내로 메일이 도착합니다.");
         event.preventDefault();
     });
 </script>

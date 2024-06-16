@@ -7,10 +7,10 @@
 <div class="container">
     <p>Sign-Up</p>
     <form action="/member/new" method="post">
-        <table style="border-collapse: collapse; width: 100%; border:none;">
+        <table style="border-collapse: collapse; border:none;">
             <tr>
                 <td><label for="email">E-Mail</label></td>
-                <td><input type="text" id="email" name="email" placeholder="E-Mail을 입력하세요." required></td>
+                <td><input type="email" id="email" name="email" placeholder="E-Mail을 입력하세요." required></td>
                 <td><button value="send code" type="button" onclick="send_auth_code();">send code</button></td>
             </tr>
             <tr>

@@ -81,7 +81,7 @@ public class MemberController {
     @ResponseBody
     @PostMapping("/find-pwd")
     private ResponseEntity<String> findPassword(@RequestBody Map<String, String> request) throws Exception {
-        String status = memberService.forwardTempPassword(request.get("email"));
+        String status = memberService.forwardTempPassword(request.get("email"), request.get("phone"), request.get("code"));
 
         return new ResponseEntity<>(status, HttpStatus.OK);
     }

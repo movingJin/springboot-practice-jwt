@@ -91,7 +91,7 @@ public class SecurityConfig {
                         response.setStatus(401);
                         response.setCharacterEncoding("utf-8");
                         response.setContentType("text/html; charset=UTF-8");
-                        response.getWriter().write("인증되지 않은 사용자입니다.");
+                        response.getWriter().write("Unauthenticated user.");
                     }
                 });
 //                .and()

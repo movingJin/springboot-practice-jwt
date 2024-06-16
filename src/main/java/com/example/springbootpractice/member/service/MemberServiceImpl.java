@@ -119,9 +119,12 @@ public class MemberServiceImpl implements MemberService{
     }
 
     @Override
-    public String forwardTempPassword(String email) throws Exception {
+    public String forwardTempPassword(String email, String phone, String code) throws Exception {
         Member member = memberRepository.findByEmail(email).orElseThrow(() ->
                 new BadCredentialsException("Invalid E-mail Information."));
+        if(!member.getPhone().equals(phone)){
+            throw new BadCredentialsException("Phone is not matched.");
+        }
 
         // generate temporary password
         char[] charSet = new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F',
