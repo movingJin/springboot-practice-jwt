@@ -2,38 +2,121 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <style>
+        html,body {width:100%;  }
+        body,div,ul,li{margin:0; padding:0;}
+        ul,li {list-style:none;}
+
+        /*tab css*/
+        .tab{float:left; width:800px; height:290px;}
+        .tabnav{font-size:0; width:800px; border:1px solid #ddd;}
+        .tabnav li{display: inline-block;  height:46px; text-align:center; border-right:1px solid #ddd;}
+        .tabnav li a:before{content:""; position:absolute; left:0; top:0px; width:100%; height:3px; }
+        .tabnav li a.active:before{background:#7ea21e;}
+        .tabnav li a.active{border-bottom:1px solid #fff;}
+        .tabnav li a{ position:relative; display:block; background: #f8f8f8; color: #000; padding:0 30px; line-height:46px; text-decoration:none; font-size:16px;}
+        .tabnav li a:hover,
+        .tabnav li a.active{background:#fff; color:#7ea21e; }
+        .tabcontent{padding: 20px; height:244px; border:1px solid #ddd; border-top:none;}
+    </style>
 </head>
 <body>
-<div class="container">
-    <div>
-        <h1>Hello Spring</h1>
-        <p>Find Password</p>
-        <form id="find-pwd-form" method="post">
-            <table style="border-collapse: collapse; border:none;">
-                <tr>
-                    <td><label for="email" >E-Mail</label></td>
-                    <td colspan="2"><input type="email" id="email" name="email" placeholder="E-Mail을 입력하세요." required></td>
-                </tr>
-                <tr>
-                    <td><label for="phone">Phone Number</label></td>
-                    <td><input type="tel" id="phone" name="phone" placeholder="전화번호를 입력하세요.(숫자만)" pattern="[0-9]{3}[0-9]{4}[0-9]{4}" required></td>
-                    <td><button value="send code" type="button" onclick="send_auth_code();" disabled>send code</button></td>
-                </tr>
-                <tr>
-                    <td><label for="code">Auth code</label></td>
-                    <td colspan="2"><input type="text" id="code" name="code" placeholder="코드를 입력하세요." disabled></td>
-                </tr>
-            </table>
-            <button id="register_submit" value="Submit" type="submit">Send Email</button>
-        </form>
+<h1>Hello Spring</h1>
+<div class="tab">
+    <ul class="tabnav">
+        <li><a href="#find-email-tab">Find E-Mail</a></li>
+        <li><a href="#find-pwd-tab">Find Password</a></li>
+    </ul>
+    <div class="tabcontent">
+        <div id="find-email-tab" class="container">
+            <div>
+                <p>Find Email</p>
+                <form id="find-email-form" method="post">
+                    <table style="border-collapse: collapse; border:none;">
+                        <tr>
+                            <td><label for="email0" >E-Mail</label></td>
+                            <td colspan="2"><input type="email" id="email0" name="email" placeholder="Find your joined e-mail" disabled></td>
+                        </tr>
+                        <tr>
+                            <td><label for="phone0">Phone Number</label></td>
+                            <td><input type="tel" id="phone0" name="phone" placeholder="전화번호를 입력하세요.(숫자만)" pattern="[0-9]{3}[0-9]{4}[0-9]{4}" required></td>
+                            <td><button value="send code" type="button" onclick="send_auth_code();" disabled>send code</button></td>
+                        </tr>
+                        <tr>
+                            <td><label for="code0">Auth code</label></td>
+                            <td colspan="2"><input type="text" id="code0" name="code" placeholder="코드를 입력하세요." disabled></td>
+                        </tr>
+                    </table>
+                    <button id="find_email_submit" class="submit" value="Submit" type="submit">Find Email</button>
+                </form>
+            </div>
+        </div> <!-- /container -->
+        <div id="find-pwd-tab" class="container">
+            <div>
+                <p>Find Password</p>
+                <form id="find-pwd-form" method="post">
+                    <table style="border-collapse: collapse; border:none;">
+                        <tr>
+                            <td><label for="email1" >E-Mail</label></td>
+                            <td colspan="2"><input type="email" id="email1" name="email" placeholder="E-Mail을 입력하세요." required></td>
+                        </tr>
+                        <tr>
+                            <td><label for="phone1">Phone Number</label></td>
+                            <td><input type="tel" id="phone1" name="phone" placeholder="전화번호를 입력하세요.(숫자만)" pattern="[0-9]{3}[0-9]{4}[0-9]{4}" required></td>
+                            <td><button value="send code" type="button" onclick="send_auth_code();" disabled>send code</button></td>
+                        </tr>
+                        <tr>
+                            <td><label for="code1">Auth code</label></td>
+                            <td colspan="2"><input type="text" id="code1" name="code" placeholder="코드를 입력하세요." disabled></td>
+                        </tr>
+                    </table>
+                    <button id="find_pwd_submit" class="submit" value="Submit" type="submit">Send Email</button>
+                </form>
+            </div>
+        </div> <!-- /container -->
     </div>
-</div> <!-- /container -->
+</div>
+
 <script type="text/javascript">
+    $(function(){
+      $('.tabcontent > div').hide();
+      $('.tabnav a').click(function () {
+        $('.tabcontent > div').hide().filter(this.hash).fadeIn();
+        $('.tabnav a').removeClass('active');
+        $(this).addClass('active');
+        return false;
+      }).filter(':eq(0)').click();
+    });
     {
-      const btn_submit = document.getElementById("register_submit");
-      const input_email = document.getElementById("email");
-      const input_phone = document.getElementById("phone");
-      const input_code = document.getElementById("code");
+      const btn_submit = document.getElementById("find_email_submit");
+      const input_phone = document.getElementById("phone0");
+      const input_code = document.getElementById("code0");
+      deactivate()
+
+      function activate() {
+        btn_submit.disabled = false;
+      }
+
+      function deactivate() {
+        btn_submit.disabled = true;
+      }
+
+      function check() {
+        if (input_phone.value !== '' /* && input_code.value !== ''*/) {
+          activate();
+        } else {
+          deactivate();
+        }
+      }
+
+      input_phone.addEventListener('input', check);
+      //input_code.addEventListener('input', check);
+    }
+    {
+      const btn_submit = document.getElementById("find_pwd_submit");
+      const input_email = document.getElementById("email1");
+      const input_phone = document.getElementById("phone1");
+      const input_code = document.getElementById("code1");
       deactivate()
 
       function activate() {
@@ -49,9 +132,9 @@
             input_phone.value !== '' &&
             //input_code.value !== '' &&
             input_email.checkValidity()) {
-          activate()
+          activate();
         } else {
-          deactivate()
+          deactivate();
         }
       }
 
@@ -59,10 +142,37 @@
       input_phone.addEventListener('input', check);
       //input_code.addEventListener('input', check);
     }
-
-    $('form').submit(function(event){
+    $('#find-email-form').submit(function(event){
         const formData = {};
-        $($('form').serializeArray()).each(function(i, v) {
+        $('#email0').val("Find your joined e-mail");
+        $($('#find-email-form').serializeArray()).each(function(i, v) {
+            formData[v.name] = v.value;
+        });
+        $.ajax({
+            type: 'POST',
+            url: '/find-email',
+            dataType: 'json',
+            data: JSON.stringify(formData),
+            contentType : 'application/json',
+            success: function(data) {
+
+            }, error: function(textStatus, errorThrown) {
+                console.log(textStatus.responseText);
+                if(textStatus.responseText === "Unauthenticated user."){
+                    alert("등록되지 않은 이용자정보입니다.");
+                }else{
+                    const phone = $('#phone0').val();
+                    alert(phone + " 으로 등록된 사용자 email을 찾았습니다.");
+                    $('#email0').val(textStatus.responseText);
+                }
+            }
+        });
+        event.preventDefault();
+    });
+
+    $('#find-pwd-form').submit(function(event){
+        const formData = {};
+        $($('#find-pwd-form').serializeArray()).each(function(i, v) {
             formData[v.name] = v.value;
         });
         $.ajax({
@@ -72,15 +182,14 @@
             data: JSON.stringify(formData),
             contentType : 'application/json',
             success: function(data) {
-                const email = $('#email').val();
+                const email = $('#email1').val();
                 alert("초기화된 임시비밀번호를 " + email + "로 전송했습니다. 30분 내로 메일이 도착합니다.");
-            },
-            error: function(textStatus, errorThrown) {
+            }, error: function(textStatus, errorThrown) {
                 console.log(textStatus.responseText);
                 if(textStatus.responseText === "Unauthenticated user."){
                     alert("등록되지 않은 이용자정보입니다.");
                 }else if(textStatus.responseText === "Temporary password issued."){
-                    const email = $('#email').val();
+                    const email = $('#email1').val();
                     alert("초기화된 임시비밀번호를 " + email + "로 전송했습니다. 30분 내로 메일이 도착합니다.");
                 }
             }

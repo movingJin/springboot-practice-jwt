@@ -119,6 +119,14 @@ public class MemberServiceImpl implements MemberService{
     }
 
     @Override
+    public String findRegisteredEmail(String phone, String code) throws Exception {
+        Member member = memberRepository.findByPhone(phone).orElseThrow(() ->
+                new BadCredentialsException("Invalid user Information."));
+
+        return member.getEmail();
+    }
+
+    @Override
     public String forwardTempPassword(String email, String phone, String code) throws Exception {
         Member member = memberRepository.findByEmail(email).orElseThrow(() ->
                 new BadCredentialsException("Invalid E-mail Information."));

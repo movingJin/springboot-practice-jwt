@@ -13,6 +13,7 @@ public interface MemberService {
     LoginResponseDto logIn(LoginRequestDto request, HttpServletResponse response);
     void logOut(String token);
     boolean register(SignUpRequestDto request) throws Exception;
+    String findRegisteredEmail(String phone, String code) throws Exception;
     String forwardTempPassword(String email, String phone, String code) throws Exception;
     LoginResponseDto getMember(String account) throws Exception;
 
