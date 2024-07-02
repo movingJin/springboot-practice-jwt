@@ -2,6 +2,7 @@ package com.example.springbootpractice.member.controller;
 
 import com.example.springbootpractice.member.dto.LoginRequestDto;
 import com.example.springbootpractice.member.dto.LoginResponseDto;
+import com.example.springbootpractice.member.dto.ModifyUserInfoDto;
 import com.example.springbootpractice.member.dto.SignUpRequestDto;
 import com.example.springbootpractice.member.entity.Member;
 import com.example.springbootpractice.member.service.MemberService;
@@ -92,6 +93,21 @@ public class MemberController {
         String status = memberService.forwardTempPassword(request.get("email"), request.get("phone"), request.get("code"));
 
         return new ResponseEntity<>(status, HttpStatus.OK);
+    }
+
+    @GetMapping("/modify-pwd")
+    public String modifyPassword() {
+        return "member/modify_pwd";
+    }
+
+    @ResponseBody
+    @PostMapping("user/modify-pwd")
+    private ResponseEntity<Boolean> modifyPassword(
+            @RequestHeader (name="Authorization") String token,
+            @RequestBody ModifyUserInfoDto request) throws Exception {
+        memberService.modifyUserPassword(token, request);
+
+        return new ResponseEntity<>(true, HttpStatus.OK);
     }
 
     @GetMapping("/user/home")

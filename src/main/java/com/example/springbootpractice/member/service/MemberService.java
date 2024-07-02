@@ -2,6 +2,7 @@ package com.example.springbootpractice.member.service;
 
 import com.example.springbootpractice.member.dto.LoginRequestDto;
 import com.example.springbootpractice.member.dto.LoginResponseDto;
+import com.example.springbootpractice.member.dto.ModifyUserInfoDto;
 import com.example.springbootpractice.member.dto.SignUpRequestDto;
 import com.example.springbootpractice.member.entity.Member;
 
@@ -19,4 +20,5 @@ public interface MemberService {
 
     void sendCodeToEmail(String email) throws Exception;
     boolean verifiedCode(String email, String authCode);
+    void modifyUserPassword(String accessToken, ModifyUserInfoDto modifyUserInfoDto) throws Exception;
 }

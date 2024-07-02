@@ -2,10 +2,7 @@ package com.example.springbootpractice.member.service;
 
 import com.example.springbootpractice.common.BusinessLogicException;
 import com.example.springbootpractice.common.ExceptionCode;
-import com.example.springbootpractice.member.dto.LoginRequestDto;
-import com.example.springbootpractice.member.dto.LoginResponseDto;
-import com.example.springbootpractice.member.dto.SignUpRequestDto;
-import com.example.springbootpractice.member.dto.TokenDto;
+import com.example.springbootpractice.member.dto.*;
 import com.example.springbootpractice.member.entity.Authority;
 import com.example.springbootpractice.member.entity.Member;
 import com.example.springbootpractice.member.repository.MemberRepository;
@@ -204,5 +201,24 @@ public class MemberServiceImpl implements MemberService{
         String redisAuthCode = (String)redisTemplate.opsForValue().get(AUTH_CODE_PREFIX + email);
 
         return redisAuthCode != null && redisAuthCode.equals(authCode);
+    }
+
+    @Override
+    public void modifyUserPassword(String accessToken, ModifyUserInfoDto modifyUserInfoDto) throws Exception {
+        if (!jwtProvider.validateToken(accessToken)){
+            throw new IllegalArgumentException("로그아웃 : 유효하지 않은 토큰입니다.");
+        }
+
+        // Access Token에서 User email을 가져온다
+        Authentication authentication = jwtProvider.getAuthentication(accessToken);
+        memberRepository.findByEmail(authentication.getName())
+                .ifPresentOrElse(user -> {
+                    if (passwordEncoder.matches(modifyUserInfoDto.getOldPassword(), user.getPassword())) {
+                        user.setPassword(passwordEncoder.encode(modifyUserInfoDto.getNewPassword()));
+                        memberRepository.save(user);
+                    } else {
+                        throw new BadCredentialsException("Password not matched.");
+                    }
+                }, () -> { throw new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND); });
     }
 }

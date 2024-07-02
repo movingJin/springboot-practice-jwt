@@ -1,0 +1,80 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+</head>
+<body>
+<div class="container">
+    <p>Modify Password</p>
+    <form id="modify-pwd-form" method="post">
+        <table style="border-collapse: collapse; border:none;">
+            <tr>
+                <td><label for="old_pwd">Old Password</label></td>
+                <td><input type="password" id="old_pwd" name="password" required></td>
+            </tr>
+            <tr>
+                <td><label for="new_pwd">New Password</label></td>
+                <td><input type="password" id="new_pwd" name="password" required></td>
+            </tr>
+            <tr>
+                <td><label for="new_pwd_chk">New Password Check</label></td>
+                <td><input type="password" id="new_pwd_chk" name="password" required></td>
+            </tr>
+        </table>
+        <button id="password_submit" value="Submit" type="submit" disabled>Submit</button>
+    </form>
+</div> <!-- /container -->
+<script type="text/javascript">
+    {
+      const btn_submit = document.getElementById("password_submit");
+      const old_passwd = document.getElementById("old_pwd");
+      const new_passwd = document.getElementById("new_pwd");
+      const new_passwd_chk = document.getElementById("new_pwd_chk");
+      deactivate()
+
+      function activate() {
+        btn_submit.disabled = false;
+      }
+
+      function deactivate() {
+        btn_submit.disabled = true;
+      }
+
+      function check() {
+        if (old_passwd.value !== '' &&
+            new_passwd.value !== '' &&
+            new_passwd_chk.value !== '' &&
+            new_passwd.value === new_passwd_chk.value) {
+          activate()
+        } else {
+          deactivate()
+        }
+      }
+
+      old_passwd.addEventListener('input', check);
+      new_passwd.addEventListener('input', check);
+      new_passwd_chk.addEventListener('input', check);
+    }
+
+    $('form').submit(function(event){
+        const formData = {};
+        formData["oldPassword"] = $('#old_pwd').val();
+        formData["newPassword"] = $('#new_pwd').val();
+        const accessToken = localStorage.getItem('wtw-token') || '';
+        $.ajax({
+            type: 'POST',
+            url: 'user/modify-pwd',
+            headers: {"Authorization": 'Bearer ' + accessToken},
+            dataType: 'json',
+            data: JSON.stringify(formData),
+            contentType : 'application/json',
+            success: function(data) {
+                console.log(data);
+                alert("비밀번호가 변경되었습니다.");
+            }
+        });
+        event.preventDefault();
+    });
+</script>
+</body>
+</html>
