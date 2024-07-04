@@ -1,0 +1,79 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+</head>
+<body>
+<div class="container">
+    <p>Modify User Info</p>
+    <form id="modify-info-form" method="post">
+        <table style="border-collapse: collapse; border:none;">
+            <tr>
+                <td><label for="name">Name</label></td>
+                <td><input type="text" id="name" name="name" th:value="${name}" placeholder="이름을 입력하세요." required></td>
+            </tr>
+            <tr>
+                <td><label for="phone">Phone</label></td>
+                <td><input type="tel" id="phone" name="phone" th:value="${phone}" placeholder="전화번호를 입력하세요.(숫자만)" pattern="[0-9]{3}[0-9]{4}[0-9]{4}" required></td>
+            </tr>
+            <tr>
+                <td colspan="2"><button type="button" onclick="location.href='/modify-pwd'">Modify Password</button></td>
+            </tr>
+        </table>
+        <button id="modify_submit" value="Submit" type="submit" disabled>Submit</button>
+    </form>
+</div> <!-- /container -->
+<script type="text/javascript">
+    {
+      const btn_submit = document.getElementById("modify_submit");
+      const input_name = document.getElementById("name");
+      const input_phone = document.getElementById("phone");
+      deactivate()
+
+      function activate() {
+        btn_submit.disabled = false;
+      }
+
+      function deactivate() {
+        btn_submit.disabled = true;
+      }
+
+      function check() {
+        if (input_name.value !== '' &&
+            input_phone.value !== '') {
+          activate();
+        } else {
+          deactivate();
+        }
+      }
+
+      input_name.addEventListener('input', check);
+      input_phone.addEventListener('input', check);
+    }
+
+    $('form').submit(function(event){
+        const formData = {};
+        $($('#modify-info-form').serializeArray()).each(function(i, v) {
+            formData[v.name] = v.value;
+        });
+        const accessToken = localStorage.getItem('wtw-token') || '';
+        $.ajax({
+            type: 'POST',
+            url: 'user/modify-info',
+            headers: {"Authorization": 'Bearer ' + accessToken},
+            dataType: 'json',
+            data: JSON.stringify(formData),
+            contentType : 'application/json',
+            success: function(data) {
+                console.log(data);
+                alert("사용자정보가 변경되었습니다.");
+            }, error: function(textStatus, errorThrown) {
+                console.log(textStatus);
+                console.log(errorThrown);
+            }
+        });
+        event.preventDefault();
+    });
+</script>
+</body>
+</html>

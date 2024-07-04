@@ -71,6 +71,10 @@
             success: function(data) {
                 console.log(data);
                 alert("비밀번호가 변경되었습니다.");
+            }, error: function(textStatus, errorThrown) {
+                if(textStatus.status === 401){
+                    alert("현재 비밀번호가 일치하지 않습니다.");
+                }
             }
         });
         event.preventDefault();

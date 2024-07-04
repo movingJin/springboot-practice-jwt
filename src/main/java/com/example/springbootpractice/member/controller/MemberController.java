@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -106,6 +108,29 @@ public class MemberController {
             @RequestHeader (name="Authorization") String token,
             @RequestBody ModifyUserInfoDto request) throws Exception {
         memberService.modifyUserPassword(token, request);
+
+        return new ResponseEntity<>(true, HttpStatus.OK);
+    }
+
+    @GetMapping("/modify-info")
+    public String modifyInfo(Model model) throws Exception {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if (principal instanceof UserDetails) {
+            String email = ((UserDetails) principal).getUsername();
+            LoginResponseDto loginResponseDto = memberService.getMember(email);
+            model.addAttribute("name", loginResponseDto.getName());
+            model.addAttribute("phone", loginResponseDto.getPhone());
+        }
+        return "member/modify_info";
+    }
+
+    @ResponseBody
+    @PostMapping("user/modify-info")
+    private ResponseEntity<Boolean> modifyInfo(
+            @RequestHeader (name="Authorization") String token,
+            @RequestBody ModifyUserInfoDto request) throws Exception {
+        memberService.modifyUserInfo(token, request);
 
         return new ResponseEntity<>(true, HttpStatus.OK);
     }

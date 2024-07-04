@@ -206,19 +206,35 @@ public class MemberServiceImpl implements MemberService{
     @Override
     public void modifyUserPassword(String accessToken, ModifyUserInfoDto modifyUserInfoDto) throws Exception {
         if (!jwtProvider.validateToken(accessToken)){
-            throw new IllegalArgumentException("로그아웃 : 유효하지 않은 토큰입니다.");
+            throw new IllegalArgumentException("유효하지 않은 토큰입니다.");
         }
 
         // Access Token에서 User email을 가져온다
         Authentication authentication = jwtProvider.getAuthentication(accessToken);
         memberRepository.findByEmail(authentication.getName())
-                .ifPresentOrElse(user -> {
-                    if (passwordEncoder.matches(modifyUserInfoDto.getOldPassword(), user.getPassword())) {
-                        user.setPassword(passwordEncoder.encode(modifyUserInfoDto.getNewPassword()));
-                        memberRepository.save(user);
+                .ifPresentOrElse(member -> {
+                    if (passwordEncoder.matches(modifyUserInfoDto.getOldPassword(), member.getPassword())) {
+                        member.setPassword(passwordEncoder.encode(modifyUserInfoDto.getNewPassword()));
+                        memberRepository.save(member);
                     } else {
                         throw new BadCredentialsException("Password not matched.");
                     }
+                }, () -> { throw new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND); });
+    }
+
+    @Override
+    public void modifyUserInfo(String accessToken, ModifyUserInfoDto modifyUserInfoDto) throws Exception {
+        if (!jwtProvider.validateToken(accessToken)){
+            throw new IllegalArgumentException("유효하지 않은 토큰입니다.");
+        }
+
+        // Access Token에서 User email을 가져온다
+        Authentication authentication = jwtProvider.getAuthentication(accessToken);
+        memberRepository.findByEmail(authentication.getName())
+                .ifPresentOrElse(member -> {
+                    member.setName(modifyUserInfoDto.getName());
+                    member.setPhone(modifyUserInfoDto.getPhone());
+                    memberRepository.save(member);
                 }, () -> { throw new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND); });
     }
 }
