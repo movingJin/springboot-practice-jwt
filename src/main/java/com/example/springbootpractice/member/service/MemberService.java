@@ -21,5 +21,5 @@ public interface MemberService {
     void sendCodeToEmail(String email) throws Exception;
     boolean verifiedCode(String email, String authCode);
     void modifyUserPassword(String accessToken, ModifyUserInfoDto modifyUserInfoDto) throws Exception;
-    void modifyUserInfo(String accessToken, ModifyUserInfoDto modifyUserInfoDto) throws Exception;
+    LoginResponseDto modifyUserInfo(String accessToken, ModifyUserInfoDto modifyUserInfoDto) throws Exception;
 }

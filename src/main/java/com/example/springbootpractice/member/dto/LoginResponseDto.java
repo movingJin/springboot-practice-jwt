@@ -17,10 +17,10 @@ import java.util.List;
 public class LoginResponseDto {
 
     private Long id;
-    private String name;
     private String email;
+    private String name;
     private String phone;
-    private List<Authority> roles = new ArrayList<>();
+    private List<Authority> roles;
     private TokenDto tokens;
 
     public LoginResponseDto(Member member) {

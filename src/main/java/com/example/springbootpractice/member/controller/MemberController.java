@@ -127,12 +127,11 @@ public class MemberController {
 
     @ResponseBody
     @PostMapping("user/modify-info")
-    private ResponseEntity<Boolean> modifyInfo(
+    private ResponseEntity<LoginResponseDto> modifyInfo(
             @RequestHeader (name="Authorization") String token,
             @RequestBody ModifyUserInfoDto request) throws Exception {
-        memberService.modifyUserInfo(token, request);
 
-        return new ResponseEntity<>(true, HttpStatus.OK);
+        return new ResponseEntity<>(memberService.modifyUserInfo(token, request), HttpStatus.OK);
     }
 
     @GetMapping("/user/home")
