@@ -182,18 +182,14 @@ public class MemberServiceImpl implements MemberService{
     }
 
     private String createCode() {
-        int lenth = 6;
-        try {
-            Random random = SecureRandom.getInstanceStrong();
-            StringBuilder builder = new StringBuilder();
-            for (int i = 0; i < lenth; i++) {
-                builder.append(random.nextInt(10));
-            }
-            return builder.toString();
-        } catch (NoSuchAlgorithmException e) {
-            log.debug("MemberService.createCode() exception occur");
-            throw new BusinessLogicException(ExceptionCode.NO_SUCH_ALGORITHM);
+        int code_length = 6;
+        char[] charSet = new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < code_length; i++) {
+            int idx = (int) (charSet.length * Math.random());
+            builder.append(charSet[idx]);
         }
+        return builder.toString();
     }
 
     public boolean verifiedCode(String email, String authCode) {
