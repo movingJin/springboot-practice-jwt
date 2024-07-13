@@ -38,7 +38,7 @@ public class JwtProvider {
     // Access token 만료시간 : 1Hour
     public static final long ACCESS_TIME =  30 * 1000L;
     // Refresh token 만료시간 : 1Hour
-    public static final long REFRESH_TIME =  10 * 60 * 1000L;
+    public static final long REFRESH_TIME =  2 * 60 * 1000L;
     public static final String ACCESS_TOKEN = "Access_Token";
     public static final String REFRESH_TOKEN = "Refresh_Token";
 
@@ -95,8 +95,12 @@ public class JwtProvider {
 
     // 토큰에 담겨있는 유저 account 획득
     public String getAccount(String token) {
-        token = getClaimFromToken(token);
-        return Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token).getBody().getSubject();
+        return Jwts.parserBuilder()
+                .setSigningKey(secretKey)
+                .build()
+                .parseClaimsJws(getClaimFromToken(token))
+                .getBody()
+                .getSubject();
     }
 
     public List<Authority> getRoles(String token) {

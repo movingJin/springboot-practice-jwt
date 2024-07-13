@@ -80,8 +80,8 @@ public class MemberServiceImpl implements MemberService{
         String email = jwtProvider.getAccount(refreshToken);
         Member member = memberRepository.findByEmail(email).orElseThrow(() ->
                 new BadCredentialsException("Invalid E-mail Information."));
-        String accessToken = (String) redisTemplate.opsForValue().get("AT:"+email);
-        TokenDto tokenDto = new TokenDto(accessToken, refreshToken);
+        String newAccessToken = jwtProvider.createToken(email, member.getRoles(), JwtProvider.ACCESS_TOKEN);
+        TokenDto tokenDto = new TokenDto(newAccessToken, refreshToken);
 
         return LoginResponseDto.builder()
                 .id(member.getId())
@@ -108,7 +108,6 @@ public class MemberServiceImpl implements MemberService{
         if (redisTemplate.opsForValue().get("RT:"+authentication.getName())!=null){
             // Refresh Token을 삭제
             redisTemplate.delete("RT:"+authentication.getName());
-            redisTemplate.delete("AT:"+authentication.getName());
         }
 
         // 해당 Access Token 유효시간을 가지고 와서 BlackList에 저장하기

@@ -62,7 +62,7 @@
     }
 
     function logout_event(){
-        const url = "/signout";
+        const url = "/user/signout";
         const accessToken = localStorage.getItem('wtw-token') || '';
         $.ajax({
             type: 'POST',

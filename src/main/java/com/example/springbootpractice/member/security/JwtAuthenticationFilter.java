@@ -52,18 +52,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 boolean isRefreshToken = jwtProvider.refreshTokenValidation(refreshToken);
                 // 리프레시 토큰이 유효하고 리프레시 토큰이 DB와 비교했을때 똑같다면
                 if (isRefreshToken) {
-                    // 리프레시 토큰으로 아이디 정보 가져오기
-                    String email = jwtProvider.getAccount(refreshToken);
-                    List<Authority> roles = jwtProvider.getRoles(refreshToken);
-
-                    // 새로운 어세스 토큰 발급
-                    String newAccessToken = jwtProvider.createToken(email, roles,JwtProvider.ACCESS_TOKEN);
-                    redisTemplate.opsForValue().set("AT:"+email, newAccessToken, JwtProvider.ACCESS_TIME, TimeUnit.MILLISECONDS);
-
-                    // 헤더에 어세스 토큰 추가
-                    jwtProvider.setHeaderAccessToken(response, newAccessToken);
                     // Security context에 인증 정보 넣기
-                    Authentication auth = jwtProvider.getAuthentication("Bearer " + newAccessToken);
+                    Authentication auth = jwtProvider.getAuthentication(refreshToken);
                     SecurityContextHolder.getContext().setAuthentication(auth);
                 }
                 // 리프레시 토큰이 만료 || 리프레시 토큰이 DB와 비교했을때 똑같지 않다면

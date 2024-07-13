@@ -52,7 +52,7 @@ public class MemberController {
     }
 
     @ResponseBody
-    @PostMapping(value = "/signout")
+    @PostMapping(value = "/user/signout")
     public ResponseEntity<String> signout(@RequestHeader (name="Authorization") String token) throws Exception {
 
         return new ResponseEntity<>("success", HttpStatus.OK);
@@ -110,7 +110,7 @@ public class MemberController {
     }
 
     @ResponseBody
-    @PostMapping("user/modify-pwd")
+    @PostMapping("/user/modify-pwd")
     private ResponseEntity<Boolean> modifyPassword(
             @RequestHeader (name="Authorization") String token,
             @RequestBody ModifyUserInfoDto request) throws Exception {
@@ -133,7 +133,7 @@ public class MemberController {
     }
 
     @ResponseBody
-    @PostMapping("user/modify-info")
+    @PostMapping("/user/modify-info")
     private ResponseEntity<LoginResponseDto> modifyInfo(
             @RequestHeader (name="Authorization") String token,
             @RequestBody ModifyUserInfoDto request) throws Exception {
