@@ -12,6 +12,7 @@ import java.util.List;
 public interface MemberService {
     List<Member> findMembers();
     LoginResponseDto logIn(LoginRequestDto request, HttpServletResponse response);
+    LoginResponseDto refreshUserInfo(String refreshToken);
     void logOut(String token);
     boolean register(SignUpRequestDto request) throws Exception;
     String findRegisteredEmail(String phone, String code) throws Exception;

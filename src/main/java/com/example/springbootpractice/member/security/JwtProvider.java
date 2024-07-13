@@ -38,7 +38,7 @@ public class JwtProvider {
     // Access token 만료시간 : 1Hour
     public static final long ACCESS_TIME =  30 * 1000L;
     // Refresh token 만료시간 : 1Hour
-    public static final long REFRESH_TIME =  1 * 60 * 1000L;
+    public static final long REFRESH_TIME =  10 * 60 * 1000L;
     public static final String ACCESS_TOKEN = "Access_Token";
     public static final String REFRESH_TOKEN = "Refresh_Token";
 
@@ -68,7 +68,7 @@ public class JwtProvider {
 
     // header 토큰을 가져오는 기능
     public String getHeaderToken(HttpServletRequest request, String type) {
-        return type.equals("Access") ? request.getHeader(ACCESS_TOKEN) :request.getHeader(REFRESH_TOKEN);
+        return type.equals(ACCESS_TOKEN) ? request.getHeader(ACCESS_TOKEN) :request.getHeader(REFRESH_TOKEN);
     }
 
     // 토큰 생성
@@ -133,13 +133,14 @@ public class JwtProvider {
 
     public Boolean refreshTokenValidation(String token) {
         // 1차 토큰 검증
+        String refreshToken = getClaimFromToken(token);
         if(!validateToken(token)) return false;
 
         // UserDetail의 username인 Email 정보를 얻어옴
         String email = getAccount(token);
-        String refreshToken = (String) redisTemplate.opsForValue().get("RT:"+ email);
+        String tokenFromRedis = (String) redisTemplate.opsForValue().get("RT:"+ email);
 
-        return token.equals(refreshToken);
+        return refreshToken != null && refreshToken.equals(tokenFromRedis);
     }
 
     // 어세스 토큰 헤더 설정

@@ -76,6 +76,24 @@ public class MemberServiceImpl implements MemberService{
     }
 
     @Override
+    public LoginResponseDto refreshUserInfo(String refreshToken) {
+        String email = jwtProvider.getAccount(refreshToken);
+        Member member = memberRepository.findByEmail(email).orElseThrow(() ->
+                new BadCredentialsException("Invalid E-mail Information."));
+        String accessToken = (String) redisTemplate.opsForValue().get("AT:"+email);
+        TokenDto tokenDto = new TokenDto(accessToken, refreshToken);
+
+        return LoginResponseDto.builder()
+                .id(member.getId())
+                .email(member.getEmail())
+                .name(member.getName())
+                .phone(member.getPhone())
+                .roles(member.getRoles())
+                .tokens(tokenDto)
+                .build();
+    }
+
+    @Override
     @Transactional
     public void logOut(String token) {
         // 로그아웃 하고 싶은 토큰이 유효한 지 먼저 검증하기
@@ -90,6 +108,7 @@ public class MemberServiceImpl implements MemberService{
         if (redisTemplate.opsForValue().get("RT:"+authentication.getName())!=null){
             // Refresh Token을 삭제
             redisTemplate.delete("RT:"+authentication.getName());
+            redisTemplate.delete("AT:"+authentication.getName());
         }
 
         // 해당 Access Token 유효시간을 가지고 와서 BlackList에 저장하기
@@ -124,6 +143,7 @@ public class MemberServiceImpl implements MemberService{
     }
 
     @Override
+    @Transactional
     public String forwardTempPassword(String email, String phone, String code) throws Exception {
         Member member = memberRepository.findByEmail(email).orElseThrow(() ->
                 new BadCredentialsException("Invalid E-mail Information."));

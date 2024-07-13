@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final RedisTemplate<String, Object> redisTemplate;
@@ -29,7 +30,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         // Access / Refresh 헤더에서 토큰을 가져옴.
         String accessToken = jwtProvider.resolveToken(request);
-        String refreshToken = jwtProvider.getHeaderToken(request, "Refresh");
+        String refreshToken = jwtProvider.getHeaderToken(request, JwtProvider.REFRESH_TOKEN);
 
         if(accessToken != null) {
             // 어세스 토큰값이 유효하다면 setAuthentication를 통해
@@ -56,11 +57,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     List<Authority> roles = jwtProvider.getRoles(refreshToken);
 
                     // 새로운 어세스 토큰 발급
-                    String newAccessToken = jwtProvider.createToken(email, roles,"Access");
+                    String newAccessToken = jwtProvider.createToken(email, roles,JwtProvider.ACCESS_TOKEN);
+                    redisTemplate.opsForValue().set("AT:"+email, newAccessToken, JwtProvider.ACCESS_TIME, TimeUnit.MILLISECONDS);
+
                     // 헤더에 어세스 토큰 추가
                     jwtProvider.setHeaderAccessToken(response, newAccessToken);
                     // Security context에 인증 정보 넣기
-                    Authentication auth = jwtProvider.getAuthentication(newAccessToken);
+                    Authentication auth = jwtProvider.getAuthentication("Bearer " + newAccessToken);
                     SecurityContextHolder.getContext().setAuthentication(auth);
                 }
                 // 리프레시 토큰이 만료 || 리프레시 토큰이 DB와 비교했을때 똑같지 않다면

@@ -5,6 +5,7 @@ import com.example.springbootpractice.member.dto.LoginResponseDto;
 import com.example.springbootpractice.member.dto.ModifyUserInfoDto;
 import com.example.springbootpractice.member.dto.SignUpRequestDto;
 import com.example.springbootpractice.member.entity.Member;
+import com.example.springbootpractice.member.security.JwtProvider;
 import com.example.springbootpractice.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -45,9 +46,15 @@ public class MemberController {
     }
 
     @ResponseBody
+    @PostMapping(value = "/user/refresh")
+    public ResponseEntity<LoginResponseDto> refresh(@RequestHeader (name= JwtProvider.REFRESH_TOKEN) String refreshToken) {
+        return new ResponseEntity<>(memberService.refreshUserInfo(refreshToken), HttpStatus.OK);
+    }
+
+    @ResponseBody
     @PostMapping(value = "/signout")
     public ResponseEntity<String> signout(@RequestHeader (name="Authorization") String token) throws Exception {
-        memberService.logOut(token);
+
         return new ResponseEntity<>("success", HttpStatus.OK);
     }
 
