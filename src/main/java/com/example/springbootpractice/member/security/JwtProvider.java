@@ -36,9 +36,9 @@ public class JwtProvider {
     private Key secretKey;
 
     // Access token 만료시간 : 1Hour
-    public static final long ACCESS_TIME =  60 * 1000L;
+    public static final long ACCESS_TIME =  30 * 1000L;
     // Refresh token 만료시간 : 1Hour
-    public static final long REFRESH_TIME =  2 * 60 * 1000L;
+    public static final long REFRESH_TIME =  1 * 60 * 1000L;
     public static final String ACCESS_TOKEN = "Access_Token";
     public static final String REFRESH_TOKEN = "Refresh_Token";
 
@@ -54,7 +54,7 @@ public class JwtProvider {
 
     // 토큰 생성
     public String createToken(String account, List<Authority> roles, String type) {
-        long time = type.equals("Access") ? ACCESS_TIME : REFRESH_TIME;
+        long time = type.equals(ACCESS_TOKEN) ? ACCESS_TIME : REFRESH_TIME;
         Claims claims = Jwts.claims().setSubject(account);
         claims.put("roles", roles);
         Date now = new Date();
