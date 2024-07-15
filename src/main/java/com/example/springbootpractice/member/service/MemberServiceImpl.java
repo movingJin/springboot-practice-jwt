@@ -80,8 +80,8 @@ public class MemberServiceImpl implements MemberService{
         String email = jwtProvider.getAccount(refreshToken);
         Member member = memberRepository.findByEmail(email).orElseThrow(() ->
                 new BadCredentialsException("Invalid E-mail Information."));
-        String newAccessToken = jwtProvider.createToken(email, member.getRoles(), JwtProvider.ACCESS_TOKEN);
-        TokenDto tokenDto = new TokenDto(newAccessToken, refreshToken);
+        // refreshToken 도 재생성
+        TokenDto tokenDto = jwtProvider.createAllToken(member.getEmail(), member.getRoles());
 
         return LoginResponseDto.builder()
                 .id(member.getId())

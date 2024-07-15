@@ -36,9 +36,9 @@ public class JwtProvider {
     private Key secretKey;
 
     // Access token 만료시간 : 1Hour
-    public static final long ACCESS_TIME =  30 * 1000L;
+    public static final long ACCESS_TIME =  24 * 60 * 60 * 1000L;   //하루
     // Refresh token 만료시간 : 1Hour
-    public static final long REFRESH_TIME =  2 * 60 * 1000L;
+    public static final long REFRESH_TIME =  14 * 24 * 60 * 60 * 1000L; //2주
     public static final String ACCESS_TOKEN = "Access_Token";
     public static final String REFRESH_TOKEN = "Refresh_Token";
 
