@@ -54,7 +54,7 @@ public class MemberController {
     @ResponseBody
     @PostMapping(value = "/user/signout")
     public ResponseEntity<String> signout(@RequestHeader (name="Authorization") String token) throws Exception {
-
+        memberService.logOut(token);
         return new ResponseEntity<>("success", HttpStatus.OK);
     }
 
