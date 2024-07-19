@@ -158,4 +158,13 @@ public class MemberController {
     public ResponseEntity<LoginResponseDto> getUserForAdmin(@RequestParam String account) throws Exception {
         return new ResponseEntity<>( memberService.getMember(account), HttpStatus.OK);
     }
+
+    @ResponseBody
+    @PostMapping(value = "/user/withdraw")
+    public ResponseEntity<String> withdraw(
+            @RequestHeader (name="Authorization") String token,
+            @RequestBody Map<String, String> request) {
+        memberService.withdraw(token, request.get("password"));
+        return new ResponseEntity<>("success", HttpStatus.OK);
+    }
 }

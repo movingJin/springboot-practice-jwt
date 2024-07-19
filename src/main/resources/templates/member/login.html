@@ -18,9 +18,18 @@
             <button value="Submit" type="submit">Submit</button>
         </form>
         <input type="button" id="logout" onclick="logout_event();" value="LogOut" disabled />
+        <input type="button" id="withdraw" onclick="withdraw_event();" value="Withdraw" disabled />
     </div>
 </div> <!-- /container -->
 <script type="text/javascript">
+    {
+        const accessToken = localStorage.getItem('wtw-token') || '';
+        if(accessToken){
+            document.getElementById('logout').disabled = false;
+            document.getElementById('withdraw').disabled = false;
+        }
+    }
+
     $('form').submit(function(event){
         const formData = {};
         $($('form').serializeArray()).each(function(i, v) {
@@ -36,6 +45,7 @@
                 localStorage.setItem('wtw-token', data["tokens"].accessToken);
                 alert(data["name"] + "님 환영합니다.");
                 document.getElementById('logout').disabled = false;
+                document.getElementById('withdraw').disabled = false;
                 //onLoginSucess(data);
             },
             error : function(xhr, ajaxSettings, thrownError)
@@ -71,8 +81,42 @@
             contentType : 'application/json',
             success: function(data) {
                 if(data === "success") {
+                    localStorage.clear();
                     alert("로그아웃 되었습니다.");
                     document.getElementById('logout').disabled = true;
+                    document.getElementById('withdraw').disabled = true;
+                }
+            }
+        });
+    }
+
+    function withdraw_event(){
+        const url = "/user/withdraw";
+        const accessToken = localStorage.getItem('wtw-token') || '';
+        const formData = {
+            "password": $('#password').val()
+        };
+        $.ajax({
+            type: 'POST',
+            url: url,
+            headers: {"Authorization": 'Bearer ' + accessToken},
+            dataType: 'json',
+            data: JSON.stringify(formData),
+            contentType : 'application/json',
+            success: function(data) {
+                if(data === "success") {
+                    alert("회원탈퇴 되었습니다.");
+                    document.getElementById('logout').disabled = true;
+                    document.getElementById('withdraw').disabled = true;
+                }
+            }, error: function(textStatus, errorThrown) {
+                console.log(textStatus.responseText);
+                console.log(textStatus.status);
+                if(textStatus.responseText === "success"){
+                    localStorage.clear();
+                    alert("회원탈퇴 되었습니다.");
+                    document.getElementById('logout').disabled = true;
+                    document.getElementById('withdraw').disabled = true;
                 }
             }
         });

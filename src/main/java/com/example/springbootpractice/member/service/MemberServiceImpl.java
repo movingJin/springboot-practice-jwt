@@ -254,4 +254,23 @@ public class MemberServiceImpl implements MemberService{
                 .roles(member.getRoles())
                 .build();
     }
+
+    @Override
+    public void withdraw(String token, String password) {
+        if (!jwtProvider.validateToken(token)){
+            throw new IllegalArgumentException("유효하지 않은 토큰입니다.");
+        }
+
+        // Access Token에서 User email을 가져온다
+        Authentication authentication = jwtProvider.getAuthentication(token);
+        memberRepository.findByEmail(authentication.getName())
+                .ifPresentOrElse(member -> {
+                    if (passwordEncoder.matches(password, member.getPassword())) {
+                        logOut(token);
+                        memberRepository.delete(member);
+                    } else {
+                        throw new BadCredentialsException("Password not matched.");
+                    }
+                }, () -> { throw new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND); });
+    }
 }
