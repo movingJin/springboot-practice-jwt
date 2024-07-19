@@ -25,6 +25,7 @@ import java.security.Key;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 @RequiredArgsConstructor
 @Component
@@ -73,7 +74,13 @@ public class JwtProvider {
 
     // 토큰 생성
     public TokenDto createAllToken(String email, List<Authority> roles) {
-        return new TokenDto(createToken(email, roles, ACCESS_TOKEN), createToken(email, roles, REFRESH_TOKEN));
+        TokenDto tokenDto = new TokenDto(createToken(email, roles, ACCESS_TOKEN), createToken(email, roles, REFRESH_TOKEN));
+        redisTemplate.opsForValue().set(
+                "RT:"+email,
+                tokenDto.getRefreshToken(),
+                JwtProvider.REFRESH_TIME,
+                TimeUnit.MILLISECONDS);
+        return tokenDto;
     }
 
     // 권한정보 획득

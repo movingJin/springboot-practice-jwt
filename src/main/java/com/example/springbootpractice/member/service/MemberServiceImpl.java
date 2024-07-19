@@ -59,12 +59,6 @@ public class MemberServiceImpl implements MemberService{
         // 아이디 정보로 Token생성
         TokenDto tokenDto = jwtProvider.createAllToken(member.getEmail(), member.getRoles());
 
-        redisTemplate.opsForValue().set(
-                "RT:"+member.getEmail(),
-                tokenDto.getRefreshToken(),
-                JwtProvider.REFRESH_TIME,
-                TimeUnit.MILLISECONDS);
-
         return LoginResponseDto.builder()
                 .id(member.getId())
                 .email(member.getEmail())
