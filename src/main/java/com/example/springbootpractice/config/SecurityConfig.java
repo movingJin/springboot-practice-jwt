@@ -46,11 +46,39 @@ public class SecurityConfig {
                                 // Cors 허용 패턴
                                 CorsConfiguration config = new CorsConfiguration();
                                 config.setAllowedOrigins(
-                                        List.of("*")
+                                        List.of(
+                                            "http://192.168.0.3:8083/",
+                                            "http://localhost:8083/"
+                                        )
                                 );
+                                config.setMaxAge(3600L);
+                                config.setAllowCredentials(true);
                                 config.setAllowedMethods(
-                                        List.of("*")
+                                        List.of("PUT", "GET", "POST", "OPTIONS", "DELETE", "PATCH")
                                 );
+                                config.setExposedHeaders(List.of(
+                                        "Authorization",
+                                        "X-CSRF-TOKEN"
+                                ));
+                                config.setAllowedHeaders(List.of(
+                                        "Access-Control-Allow-Headers",
+                                        "Access-Control-Allow-Origin",
+                                        "Access-Control-Expose-Headers",
+                                        "Access-control-allow-credentials",
+                                        "Accept",
+                                        "X-Requested-With",
+                                        "Authorization",
+                                        "Cache-Control",
+                                        "Content-Type",
+                                        "Expires",
+                                        "Last-Modified",
+                                        "Content-Language",
+                                        "Pragma",
+                                        "Baeldung-Allowed",
+                                        "Credential",
+                                        "X-AUTH-TOKEN",
+                                        "X-CSRF-TOKEN"
+                                ));
                                 return config;
                             };
                             c.configurationSource(source);
